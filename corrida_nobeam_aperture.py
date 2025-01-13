@@ -46,7 +46,7 @@ if True :
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
     solenoid_radius = 1.5e-2 # solenoid radius 
-    NParticles = 290000
+    NParticles = 90000
     n_grid = 150
     var1=params
     mag_solenoid=1*float(var1)
@@ -66,7 +66,7 @@ if True :
     i_beam = 0.050 * wp.mA     # beam current per species [A]
     r_x = 0.10* wp.mm       # beam edge in x [m]
     r_y = 0.10*wp.mm       # beam edge in y [m]
-    r_xp = 200.0e-3        # initial beam divergence [rad]
+    r_xp = 100.0e-3        # initial beam divergence [rad]
     r_yp = r_xp           # initial beam divergence [rad]
     #wp.top.vbeam=e_kin
     #wp.top.ibeam=i_beam
@@ -233,12 +233,12 @@ if True :
 #0.0575 0.06039
     
     # Pipe in the solenoid transport
-    #pipe = wp.ZCylinderOut(radius=solenoid_radius, zlower=0.0, zupper=solenoid_ze[0])
+    pipe = wp.ZCylinderOut(radius=solenoid_radius*5.0, zlower=0.0, zupper=solenoid_ze[0])
     pipe1 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[0], zupper=solenoid_ze[0]+0.004)
     pipe2 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[1], zupper=solenoid_ze[1]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
-
-    pipe=pipe1+pipe2+pipe3
+    
+    #pipe=pipe1+pipe2+pipe3
 
 
     scraper = wp.ParticleScraper(pipe)
