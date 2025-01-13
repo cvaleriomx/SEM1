@@ -96,8 +96,8 @@ def multiplot2(beam_species,lineaf2):
 
     
     plt.sca(ax12)
-    plt.xlim(-10, 10)
-    plt.ylim(-10, 10)
+    #plt.xlim(-50, 50)
+    #plt.ylim(-50, 50)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
