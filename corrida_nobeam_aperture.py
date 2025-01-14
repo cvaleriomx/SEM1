@@ -36,9 +36,21 @@ params=por
 zonas = 6
 
 
-
+h = 6.626e-34  # Constante de Planck en J·s
+m_e = 9.109e-31  # Masa del electrón en kg
+eV_to_J = 1.602e-19  # Conversión de eV a J
+#Definition and derivation of kinematics
+moc2=0.911e9
+clight=299792458
 
 if True :
+    
+
+    # Energía cinética del electrón en J
+    E_k_eV = 30e3  # Energía en keV
+ 
+
+
 
 
         # Set up solenoid lattice
@@ -46,7 +58,7 @@ if True :
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
     solenoid_radius = 1.5e-2 # solenoid radius 
-    NParticles = 90000
+    NParticles = 1500000
     n_grid = 150
     var1=params
     mag_solenoid=1*float(var1)
@@ -63,7 +75,7 @@ if True :
     # Define some initial BEAM  variables
     e_kin = 30.0 * wp.keV    # kinetic energy [eV]
     emit = 40.00e-6        # rms edge emittance [m-rad]
-    i_beam = 0.050 * wp.mA     # beam current per species [A]
+    i_beam = 0.0005 * wp.mA     # beam current per species [A]
     r_x = 0.10* wp.mm       # beam edge in x [m]
     r_y = 0.10*wp.mm       # beam edge in y [m]
     r_xp = 100.0e-3        # initial beam divergence [rad]
@@ -75,14 +87,24 @@ if True :
 
 
 
-    #Definition and derivation of kinematics
-    moc2=0.911e9
-    clight=299792458
+
     gammar=1+(e_kin)/moc2            # Relativistic gamma
     betar=np.sqrt(1-1.0/(gammar**2))   # Relativistic beta
     bg=betar*gammar
     velocity=betar*clight
     I0=moc2/(30) # corriente caracteristica
+    
+    
+   
+   
+    # Energía total (E_total = E_k + E_rest)
+    E_total = e_kin + moc2
+    # Momento del electrón: p = sqrt((E_total/c)^2 - (m_e * c)^2)
+    p_ele = ((E_total / clight)**2 - (moc2)**2)**0.5
+    # Longitud de onda de de Broglie: lambda = h / p
+    wavelength = h / p_ele
+
+    print("longitud onda ",wavelength)
 
 
     #Parametro de budjer los define esto vb=I/(I0*betar)
@@ -233,12 +255,12 @@ if True :
 #0.0575 0.06039
     
     # Pipe in the solenoid transport
-    pipe = wp.ZCylinderOut(radius=solenoid_radius*5.0, zlower=0.0, zupper=solenoid_ze[0])
+    #pipe = wp.ZCylinderOut(radius=solenoid_radius*5.0, zlower=0.0, zupper=solenoid_ze[0])
     pipe1 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[0], zupper=solenoid_ze[0]+0.004)
     pipe2 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[1], zupper=solenoid_ze[1]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
     
-    #pipe=pipe1+pipe2+pipe3
+    pipe=pipe1+pipe2+pipe3
 
 
     scraper = wp.ParticleScraper(pipe)
@@ -467,6 +489,7 @@ if True :
        plt.xlabel("z (m)")
        plt.ylabel("B field")
        plt.title("RMS emit")
+       
        plt.legend()
        #plt.xlim(0.0, run_length)
        #plt.ylim(0.0, 50.08)

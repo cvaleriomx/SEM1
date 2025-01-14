@@ -33,9 +33,9 @@ for xsol in sol1:
    #for xsol2 in sol1: 
     tracemalloc.start()
     #sizes=f1(xsol)
-    #linea="python3 corrida.py "+str(xsol)
+    #linea="python3 corrida.py "+str(xsol*0.01)
     #linea="python3 corrida_sem_opt.py "+str(xsol*0.10)+" "+str(xsol2*0.10)
-    linea="python3 corrida_sem_opt.py "+str(xsol*0.010)+" "+str(0.10)
+    linea="python3 corrida_nobeam_aperture.py "+str(xsol*0.0050)+" "+str(0.10)
 
 
     #este corre el programa
