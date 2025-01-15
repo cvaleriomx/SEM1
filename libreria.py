@@ -96,8 +96,8 @@ def multiplot2(beam_species,lineaf2):
 
     
     plt.sca(ax12)
-    #plt.xlim(-50, 50)
-    #plt.ylim(-50, 50)
+    plt.xlim(-5, 5)
+    plt.ylim(-5, 5)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
@@ -128,8 +128,8 @@ def multiplot2(beam_species,lineaf2):
     plt.savefig(lineaf2)
     plt.clf()
 
-def multiplot2_zones(beam_species,lineaf2,zonas):
-
+def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
+    Npa=0
     if not isinstance(beam_species, list):
         beam_species = [beam_species]
    # Dividir las partículas en zonas según su índice
@@ -156,7 +156,7 @@ def multiplot2_zones(beam_species,lineaf2,zonas):
                 y1[indices],
                 color=colores[i],
                 label=f'Zona {i + 1}',
-                s=1,alpha=0.6
+                s=1,alpha=0.9
             )
 
         #ax13.scatter(1e3*species.getx(), 1e3*species.getxp(),
@@ -164,8 +164,8 @@ def multiplot2_zones(beam_species,lineaf2,zonas):
 
     
     plt.sca(ax12)
-    #plt.xlim(-50, 50)
-    #plt.ylim(-50, 50)
+    #plt.xlim(-5, 5)
+    #plt.ylim(-5, 5)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
@@ -173,8 +173,8 @@ def multiplot2_zones(beam_species,lineaf2,zonas):
     
     plt.sca(ax13)
     #ax13=fig2.add_subplot(111,title="Y vs Y\'", rasterized=True)
-    limits=[[-50, 50], [-70, 70]]
-    Hx, xxedges, yxedges = np.histogram2d(1e3*species.getx(),1e3*species.getxp(),bins=100,range=limits)
+    #limits=[[-50, 50], [-70, 70]]
+    Hx, xxedges, yxedges = np.histogram2d(1e3*species.getx(),1e3*species.getxp(),bins=100)
     Hx = np.rot90(Hx)
     Hx = np.flipud(Hx)
     Hmaskedx = np.ma.masked_where(Hx==0,Hx)
@@ -270,3 +270,33 @@ def generar_circular(arreglo):
             muestrasr.append((x, y))
             i=i+1
     return np.array(muestrasr)
+
+def sort_circular(beam_species):
+
+    if not isinstance(beam_species, list):
+        beam_species = [beam_species]
+   
+    ax12 = plt.subplot(2, 1, 1)
+    ax13 = plt.subplot(2, 1, 2)
+    for species in beam_species:
+        XX=species.getx()
+        YY=species.gety()
+        radios = np.sqrt(XX**2 + YY**2)
+        # Ordenar x, y y radios usando los índices
+        indices_ordenados = np.argsort(radios)
+        x_ordenado = XX[indices_ordenados]
+        y_ordenado = YY[indices_ordenados]
+        vaux=species.getvx()
+        vx_ordenado=vaux[indices_ordenados]
+        vaux=species.getvy()
+        vy_ordenado=vaux[indices_ordenados]
+        vaux=species.getvz()
+        vz_ordenado=vaux[indices_ordenados]
+        
+        radios_ordenados = radios[indices_ordenados]
+        for var1 in range(len(XX)):
+            species.getx()[var1]=x_ordenado[var1]
+            species.gety()[var1]=y_ordenado[var1]
+            species.getvx()[var1]=vx_ordenado[var1]
+            species.getvy()[var1]=vy_ordenado[var1]
+            species.getvz()[var1]=vz_ordenado[var1]

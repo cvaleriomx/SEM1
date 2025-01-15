@@ -54,11 +54,11 @@ if True :
 
 
         # Set up solenoid lattice
-    run_length = 0.2  # the lenght of the simulation 
+    run_length = 0.15  # the lenght of the simulation 
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
-    solenoid_radius = 1.5e-2 # solenoid radius 
-    NParticles = 1500000
+    solenoid_radius = 1.0e-2 # solenoid radius 
+    NParticles = 65000
     n_grid = 150
     var1=params
     mag_solenoid=1*float(var1)
@@ -75,10 +75,10 @@ if True :
     # Define some initial BEAM  variables
     e_kin = 30.0 * wp.keV    # kinetic energy [eV]
     emit = 40.00e-6        # rms edge emittance [m-rad]
-    i_beam = 0.0005 * wp.mA     # beam current per species [A]
+    i_beam = 0.00005 * wp.mA     # beam current per species [A]
     r_x = 0.10* wp.mm       # beam edge in x [m]
     r_y = 0.10*wp.mm       # beam edge in y [m]
-    r_xp = 100.0e-3        # initial beam divergence [rad]
+    r_xp = 70.0e-3        # initial beam divergence [rad]
     r_yp = r_xp           # initial beam divergence [rad]
     #wp.top.vbeam=e_kin
     #wp.top.ibeam=i_beam
@@ -234,33 +234,35 @@ if True :
     solenoid_zi = [drift_length + i * solenoid_length + i * drift_length for i in range(3)]
     solenoid_ze = [drift_length + (i + 1) * solenoid_length + i * drift_length for i in range(3)]
     print("LLLLLLLLLLLLLLLLLLLLinicio final",solenoid_zi,solenoid_ze)
+    #input()
     wp.addnewsolenoid(zi=solenoid_zi[0],
                 zf=solenoid_ze[0],
                 ri=solenoid_radius,
-                maxbz=0.08)  # 0.07
+                maxbz=0.062)  # 0.062 .07
 
 
     wp.addnewsolenoid(zi=solenoid_zi[1],
                 zf=solenoid_ze[1],
                 ri=solenoid_radius,
-                maxbz=mag_solenoid)  # 0.075 T for p+, 0.125 T for H2+
+                maxbz=1.0*mag_solenoid)  # 0.075 T for p+, 0.125 T for H2+
     
 #0.0511  0.0539
 
     wp.addnewsolenoid(zi=solenoid_zi[2],
-                zf=solenoid_ze[2],
-                ri=solenoid_radius,
-                maxbz=mag_solenoid2)  # 0.075 T for p+, 0.125 T for H2+ [0.03345496 0.06552982]
+                zf=solenoid_zi[2]+0.01,
+                ri=solenoid_radius*0.5,
+                maxbz=1*mag_solenoid2)  # 0.075 T for p+, 0.125 T for H2+ [0.03345496 0.06552982]
 
 #0.0575 0.06039
     
     # Pipe in the solenoid transport
-    #pipe = wp.ZCylinderOut(radius=solenoid_radius*5.0, zlower=0.0, zupper=solenoid_ze[0])
-    pipe1 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[0], zupper=solenoid_ze[0]+0.004)
-    pipe2 = wp.ZCylinderOut(radius=0.002, zlower=solenoid_ze[1], zupper=solenoid_ze[1]+0.004)
+    pipe = wp.ZCylinderOut(radius=solenoid_radius*1.0, zlower=0.0, zupper=solenoid_ze[0])
+    pipe1 = wp.ZCylinderOut(radius=0.001, zlower=solenoid_zi[1], zupper=solenoid_zi[1]+0.005)
+    pipe2 = wp.ZCylinderOut(radius=0.001, zlower=solenoid_zi[2], zupper=solenoid_zi[2]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
-    
-    pipe=pipe1+pipe2+pipe3
+    print("FFFFFFFFFFFFFFFFFFFFFFFFF",solenoid_ze[1])
+    pipe=pipe1+pipe2
+    #pipe=pipe1+pipe2+pipe3
 
 
     scraper = wp.ParticleScraper(pipe)
@@ -278,11 +280,11 @@ if True :
     wp.w3d.nx = n_grid
     wp.w3d.ny = n_grid
 
-
-    wp.w3d.xmmax =  solenoid_radius  # x-grid max limit [m]
-    wp.w3d.xmmin = -solenoid_radius  # x-grid min limit [m]
-    wp.w3d.ymmax =  solenoid_radius  # y-grid max limit [m]
-    wp.w3d.ymmin = -solenoid_radius  # y-grid min limit [m]
+    solenoid_radius1=solenoid_radius*10.0
+    wp.w3d.xmmax =  solenoid_radius1  # x-grid max limit [m]
+    wp.w3d.xmmin = -solenoid_radius1  # x-grid min limit [m]
+    wp.w3d.ymmax =  solenoid_radius1  # y-grid max limit [m]
+    wp.w3d.ymmin = -solenoid_radius1  # y-grid min limit [m]
     #if mag_solenoid>0:
       #NParticles=0
     # Particle distribution options
@@ -303,7 +305,7 @@ if True :
     #print("JJJ2 ",x1)
     wp.top.lrelativ   =  False    # turn off relativistic kinematics
     wp.top.relativity = 0         # turn off relativistic self-field correction
-    wp.wxy.ds = 0.250e-3            # ds for part adv [m]
+    wp.wxy.ds = 0.1250e-3            # ds for part adv [m]
     wp.wxy.lvzchang = True        # Use iterative stepping, which is needed if the vz changes
     wp.top.ibpush   = 2           # magnetic field particle push: 0 - off, 1 - fast, 2 - accurate 
 
@@ -379,8 +381,10 @@ if True :
     #wp.getvx()[10]=0.0
     #wp.getvy()[10]=0.0
 
+    sort_circular(beam_species)
 
     for i in range(nsteps):
+     
      wp.step()
      
      print("Paso= ",i," ",int(100*(i/nsteps)),"%"," N ",len(electrons.getx()))
@@ -445,8 +449,8 @@ if True :
         #print(Npart_time)
         lineaf2="../salida/profiles_%.4f_.png" % (i)
         if i % 5==0:
-            multiplot2(beam_species,lineaf2)
-            #multiplot2_zones(beam_species,lineaf2,6)
+            #multiplot2(beam_species,lineaf2)
+            multiplot2_zones(beam_species,lineaf2,3,NParticles)
      if i==nsteps-1:
         #sumarho=np.sum(ppp)/((n_grid+1)*(n_grid+1))
         x_1 = np.linspace(-solenoid_radius,solenoid_radius,n_grid+1)
@@ -489,7 +493,7 @@ if True :
        plt.xlabel("z (m)")
        plt.ylabel("B field")
        plt.title("RMS emit")
-       
+
        plt.legend()
        #plt.xlim(0.0, run_length)
        #plt.ylim(0.0, 50.08)

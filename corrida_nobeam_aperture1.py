@@ -304,6 +304,7 @@ if True :
     #wp.getvy()[10]=0.0
 
     for i in range(nsteps):
+    sort_circular(beam_species)
      wp.step()
      
      print("Paso= ",i," ",int(100*(i/nsteps)),"%"," N ",len(electrons.getx()))
@@ -364,8 +365,8 @@ if True :
         #print(Npart_time)
         lineaf2="salida/profiles_%.4f_.png" % (i)
         if i % 5==0:
-            multiplot2(beam_species,lineaf2)
-            #multiplot2_zones(beam_species,lineaf2,6)
+            #multiplot2(beam_species,lineaf2)
+            multiplot2_zones(beam_species,lineaf2,6)
      if i==nsteps-1:
         sumarho=np.sum(ppp)/((n_grid+1)*(n_grid+1))
         x_1 = np.linspace(-solenoid_radius,solenoid_radius,n_grid+1)

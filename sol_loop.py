@@ -22,7 +22,8 @@ gc.collect()
 #input()
 x_rms=[]
 emory=[]
-sol1=range(1,20,1)
+sol1=range(4,30,1)
+sol1=np.linspace(0.07, 0.12, 20)
 preparar="rm output.txt"
 os.system(preparar)
 
@@ -35,7 +36,7 @@ for xsol in sol1:
     #sizes=f1(xsol)
     #linea="python3 corrida.py "+str(xsol*0.01)
     #linea="python3 corrida_sem_opt.py "+str(xsol*0.10)+" "+str(xsol2*0.10)
-    linea="python3 corrida_nobeam_aperture.py "+str(xsol*0.0050)+" "+str(0.10)
+    linea="python3 corrida_nobeam_aperture.py "+str(xsol*1.0)+" "+str(0.10)
 
 
     #este corre el programa
