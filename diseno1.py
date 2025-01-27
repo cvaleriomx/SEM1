@@ -14,7 +14,7 @@ import gc
 
 
 
-plot_or_not=True
+plot_or_not=False
 
 
 import os, sys, string, pdb
@@ -23,8 +23,9 @@ por=sys.argv[1:][0]
 print(por)
 por=float(por)
 por2=sys.argv[1:][1]
-var2=float(por2)
-mag_solenoid2=var2
+
+mag_solenoid=1*float(por)
+mag_solenoid2=1*float(por2)
 str1 = ""
 print(por*10)
    
@@ -54,15 +55,16 @@ if True :
 
 
         # Set up solenoid lattice
-    run_length = 0.15  # the lenght of the simulation 
+    run_length = 0.08  # the lenght of the simulation 
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
-    solenoid_radius = 1.0e-2 # solenoid radius 
-    NParticles = 565000
+    solenoid_objetive_length = 0.0125 # the lenght of the solenoid 
+
+    solenoid_radius = 2.0e-2 # solenoid radius 
+    NParticles = 15000000
     n_grid = 150
     var1=params
-    mag_solenoid=1*float(var1)
-    mag_solenoid2=1*float(var1)
+    
 
     print("TODO ESTAS AQUI XXXXXXX ",mag_solenoid)
 
@@ -189,13 +191,15 @@ if True :
     solenoid_zi = [drift_length + i * solenoid_length + i * drift_length for i in range(3)]
     solenoid_ze = [drift_length + (i + 1) * solenoid_length + i * drift_length for i in range(3)]
     print("LLLLLLLLLLLLLLLLLLLLinicio final",solenoid_zi,solenoid_ze)
+    print("dedd",solenoid_zi[1])
     #input()
     wp.addnewsolenoid(zi=solenoid_zi[0],
                 zf=solenoid_ze[0],
                 ri=solenoid_radius,
                 maxbz=0.062)  # 0.062 .07
 
-
+    solenoid_zi[1]=solenoid_zi[0]+0.08
+    solenoid_ze[1]=solenoid_ze[0]+0.08
     wp.addnewsolenoid(zi=solenoid_zi[1],
                 zf=solenoid_ze[1],
                 ri=solenoid_radius,
@@ -203,20 +207,27 @@ if True :
     
 #0.0511  0.0539
 
-    wp.addnewsolenoid(zi=solenoid_zi[2],
-                zf=solenoid_zi[2]+0.01,
+    wp.addnewsolenoid(zi=solenoid_zi[1]+0.1,
+                zf=solenoid_zi[1]+0.1+0.01,
+                ri=solenoid_radius*0.5,
+                maxbz=1*mag_solenoid2)  # 0.075 T for p+, 0.125 T for H2+ [0.03345496 0.06552982]
+    
+    if False:
+        wp.addnewsolenoid(zi=solenoid_zi[1]+0.1,
+                zf=solenoid_zi[2]+0.1,
                 ri=solenoid_radius*0.5,
                 maxbz=1*mag_solenoid2)  # 0.075 T for p+, 0.125 T for H2+ [0.03345496 0.06552982]
 
 #0.0575 0.06039
     
     # Pipe in the solenoid transport
+    solenoid_zi[1]=0.075
     pipe = wp.ZCylinderOut(radius=solenoid_radius*1.0, zlower=0.0, zupper=solenoid_ze[0])
-    pipe1 = wp.ZCylinderOut(radius=0.001, zlower=solenoid_zi[1], zupper=solenoid_zi[1]+0.005)
-    pipe2 = wp.ZCylinderOut(radius=0.001, zlower=solenoid_zi[2], zupper=solenoid_zi[2]+0.004)
+    pipe1 = wp.ZCylinderOut(radius=0.0002, zlower=solenoid_zi[1], zupper=solenoid_zi[1]+0.004)
+    pipe2 = wp.ZCylinderOut(radius=0.003, zlower=solenoid_zi[2], zupper=solenoid_zi[2]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
     print("FFFFFFFFFFFFFFFFFFFFFFFFF",solenoid_ze[1])
-    pipe=pipe1+pipe2
+    pipe=pipe1
     #pipe=pipe1+pipe2+pipe3
 
 
@@ -333,7 +344,7 @@ if True :
     #wp.getvx()[10]=0.0
     #wp.getvy()[10]=0.0
 
-    sort_circular(beam_species)
+    #sort_circular(beam_species)
 
     for i in range(nsteps):
      
@@ -344,7 +355,7 @@ if True :
      
      print("Paso= ",i," ",int(100*(i/nsteps)),"%"," N ",len(electrons.getx()))
      #salvar DATOS PARA GUARDAR CADA PASO
-     if i % 5==0 and plot_or_not:
+     if i % 5==0 and plot_or_not and i>10:
 
         ppp = wp.getrho(iz=0,solver=wp.getregisteredsolver())
         sumarho=np.sum(ppp)/((n_grid+1)*(n_grid+1))
@@ -385,7 +396,7 @@ if True :
         #phasead.append(20*wp.wxy.ds/(beta3*2*3.1416))
         #print(Npart_time)
         lineaf2="../salida/profiles_%.4f_.png" % (i)
-        if i % 5==0:
+        if i % 5==0 and i>1000:
             #multiplot2(beam_species,lineaf2)
             multiplot2_zones(beam_species,lineaf2,4,NParticles)
      if i==nsteps-1:
@@ -493,6 +504,9 @@ if True :
     with open('arreglos.txt', 'w') as file:
         for a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11 in zip(z_posi, x_emit, x_rms, phasead,chi,p1x,p1vx,p1y,p1vy,p1b,trans):
             file.write(f"{a1}\t{a2}\t{a3}\t{a4}\t{a5}\t{a6}\t{a7}\t{a8}\t{a9}\t{a10}\t{a11}\n")
+    lineaf2="salida_sol1.txt"
+    guardar_beam(beam_species,lineaf2)
+
     if(plot_or_not):    
         plt.show()
        

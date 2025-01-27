@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 #from libreria import multiplot, multiplot2, calc_rms, multiplot_magnetized, calc_emit_rms
 from libreria import *
+from scipy import interpolate
+from scipy.integrate import simps
 
 
 import scipy.optimize as optimize
@@ -58,7 +60,7 @@ if True :
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
     solenoid_radius = 1.0e-2 # solenoid radius 
-    NParticles = 565000
+    NParticles = 15000
     n_grid = 150
     var1=params
     mag_solenoid=1*float(var1)
@@ -216,7 +218,7 @@ if True :
     pipe2 = wp.ZCylinderOut(radius=0.001, zlower=solenoid_zi[2], zupper=solenoid_zi[2]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
     print("FFFFFFFFFFFFFFFFFFFFFFFFF",solenoid_ze[1])
-    pipe=pipe1+pipe2
+    #pipe=pipe1+pipe2
     #pipe=pipe1+pipe2+pipe3
 
 
@@ -385,7 +387,7 @@ if True :
         #phasead.append(20*wp.wxy.ds/(beta3*2*3.1416))
         #print(Npart_time)
         lineaf2="../salida/profiles_%.4f_.png" % (i)
-        if i % 5==0:
+        if i % 100==0:
             #multiplot2(beam_species,lineaf2)
             multiplot2_zones(beam_species,lineaf2,4,NParticles)
      if i==nsteps-1:
@@ -493,6 +495,36 @@ if True :
     with open('arreglos.txt', 'w') as file:
         for a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11 in zip(z_posi, x_emit, x_rms, phasead,chi,p1x,p1vx,p1y,p1vy,p1b,trans):
             file.write(f"{a1}\t{a2}\t{a3}\t{a4}\t{a5}\t{a6}\t{a7}\t{a8}\t{a9}\t{a10}\t{a11}\n")
+
+            # Supongamos que tus datos están en arreglos b (B(z)) y z:
+    b = p1b  # Aquí pones los valores de B(z)
+    z = z_posi  # Aquí pones los valores correspondientes de z
+
+    # Interpolar para una función suave:
+    b_interp = interpolate.interp1d(z, b, kind='cubic', fill_value="extrapolate")
+
+    # Calcular B''(z):
+    dz = z[1] - z[0]  # Asumimos un espaciado uniforme
+    b_prime = np.gradient(b, dz)         # Primera derivada
+    b_double_prime = np.gradient(b_prime, dz)  # Segunda derivada
+
+    # Integral del numerador: ∫ B(z) * B''(z) dz
+    numerador = simps(b * b_double_prime, z)
+
+    # Integral del denominador: ∫ B(z)^2 dz
+    B12=np.asarray(b, dtype=np.float32)
+    B2=B12*B12
+    denominador = simps(B2, z)
+
+    # Calcular Cs
+    C_s = -numerador / denominador
+    fig5t=plt.figure()
+  
+    plt.scatter(z_posi,b_prime , label="first deriv")
+    plt.plot(z_posi,b_double_prime , label="second der")
+    #plt.scatter(z_posi,b_double_prime , label="doubnle")
+       
+    print(f"El valor de C_s es: {C_s}")
     if(plot_or_not):    
         plt.show()
        

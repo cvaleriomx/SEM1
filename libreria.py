@@ -164,8 +164,8 @@ def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
 
     
     plt.sca(ax12)
-    #plt.xlim(-5, 5)
-    #plt.ylim(-5, 5)
+    plt.xlim(-1, 1)
+    plt.ylim(-1, 1)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
@@ -275,9 +275,7 @@ def sort_circular(beam_species):
 
     if not isinstance(beam_species, list):
         beam_species = [beam_species]
-   
-    ax12 = plt.subplot(2, 1, 1)
-    ax13 = plt.subplot(2, 1, 2)
+    
     for species in beam_species:
         XX=species.getx()
         YY=species.gety()
@@ -300,3 +298,25 @@ def sort_circular(beam_species):
             species.getvx()[var1]=vx_ordenado[var1]
             species.getvy()[var1]=vy_ordenado[var1]
             species.getvz()[var1]=vz_ordenado[var1]
+
+def guardar_beam(beam_species,lineaf2):
+
+    if not isinstance(beam_species, list):
+        beam_species = [beam_species]
+    for species in beam_species:
+        XX=species.getx()
+        YY=species.gety()
+        ZZ=species.getz()
+
+        radios = np.sqrt(XX**2 + YY**2)
+        # Ordenar x, y y radios usando los índices
+        vx=species.getvx()
+        vy=species.getvy()
+        vz=species.getvz()
+
+        with open(lineaf2, 'w') as file:
+            for a1,a2,a3,a4,a5,a6 in zip(XX, YY, ZZ, vx,vy,vz):
+                file.write(f"{a1}\t{a2}\t{a3}\t{a4}\t{a5}\t{a6}\n")
+
+            
+
