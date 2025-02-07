@@ -314,9 +314,18 @@ def guardar_beam(beam_species,lineaf2):
         vy=species.getvy()
         vz=species.getvz()
 
-        with open(lineaf2, 'w') as file:
+        with open(lineaf2, 'a') as file:
             for a1,a2,a3,a4,a5,a6 in zip(XX, YY, ZZ, vx,vy,vz):
                 file.write(f"{a1}\t{a2}\t{a3}\t{a4}\t{a5}\t{a6}\n")
+
+
+def reset_electron_positions(electrons, X0, Y0, vx0, vy0, vz0):
+    for i in range(len(electrons.getx())):
+        electrons.getx()[i] = X0[i]
+        electrons.gety()[i] = Y0[i]
+        electrons.getvx()[i] = vx0[i]
+        electrons.getvy()[i] = vy0[i]
+        electrons.getvz()[i] = vz0[i]
 
             
 

@@ -6,17 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 #from libreria import multiplot, multiplot2, calc_rms, multiplot_magnetized, calc_emit_rms
 from libreria import *
-
-
 import scipy.optimize as optimize
 import gc
 
-
 read_file=True
-
 plot_or_not=True
-
-
 import os, sys, string, pdb
 print ( sys.argv[1:])
 por=sys.argv[1:][0]
@@ -44,16 +38,14 @@ eV_to_J = 1.602e-19  # Conversión de eV a J
 moc2=0.911e9
 clight=299792458
 
-
 #DEFINE NUMBER PARTICLES
 NParticles = 16500
-
 if read_file==True:
     B=[0,0,0,0,0,0]
 
     filename="salida_sol1.txt"
-    filename="salida_prueba1.txt"
-
+    #filename="salida_prueba1.txt"
+    #filename="salida_200mu_aperture.txt"
     AF = np.loadtxt(filename, skiprows=1)
     X0=np.array(AF[:,0])+B[0]
     Y0=np.array(AF[:,1])+B[1]
@@ -64,8 +56,6 @@ if read_file==True:
     NParticles=len(X0)
     AF=0
     z0ave=0.08
-
-
 
 
 if True :
@@ -304,21 +294,8 @@ if True :
     wp.top.zbeam=0
     wp.generate()
 
-
-    #for varu in range(len(electrons.getx())):
-    #   electrons.getx()[varu]=XX[varu]
-    #    electrons.gety()[varu]=YY[varu]
-        #electrons.getvx()[varu]=VX[varu]
-        #electrons.getvy()[varu]=VY[varu]
-    
     if read_file==True:
-        for varu in range(len(electrons.getx())):
-            electrons.getx()[varu]=X0[varu]
-            electrons.gety()[varu]=Y0[varu]
-            electrons.getvx()[varu]=vx0[varu]
-            electrons.getvy()[varu]=vy0[varu]
-            electrons.getvz()[varu]=vz0[varu]
-
+        reset_electron_positions(electrons, X0, Y0, vx0, vy0, vz0)
 
     #wp.derivqty()
     #electrons.addparticles(x=XX,y=YY,z=ZZ,vx=VX,vy=VY,vz=VZ,lallindomain=True)#,w=3000)
@@ -336,30 +313,11 @@ if True :
 
 
     #VARIABLES A GUARDAR 
-    z_posi2 = []
-    x_rms2  = []
+    z_posi2, x_rms2, xiy, z_posi, x_rms, x_emit, rhoprome, Npart_time, chi, p1x, p1xp, p1y, p1vx, p1vy, phasead, p1b, trans = ([] for _ in range(17))
     zpos = 0.0
-    xiy=[]
-    z_posi = []
-    x_rms  = []
-    x_emit = []
-    rhoprome= []
-    Npart_time=[]
-    chi=[]
-    p1x=[]
-    p1xp=[]
-    p1y=[]
-    p1vx=[]
-    p1vy=[]
-    phasead=[]
-    p1b=[]
-    trans=[]
     ## REMOVER PARTICULA NECESARIA PARA QUE WARP GENERA EL HAZ     
     #electrons.gaminv[NParticles] = 0.
     #electrons.gaminv[0] = 0.
-
-
-    
     #DEFINIR PARTIULA DE PRUEBA
     #wp.getx()[10]=0.005
     #wp.gety()[10]=0.00
@@ -419,8 +377,8 @@ if True :
         #print(Npart_time)
         lineaf2="../salida/profiles_%.4f_.png" % (i)
         if i % 5==0 and i>1000:
-            #multiplot2(beam_species,lineaf2)
-            multiplot2_zones(beam_species,lineaf2,4,NParticles)
+            multiplot2(beam_species,lineaf2)
+            #multiplot2_zones(beam_species,lineaf2,4,NParticles)
      if i==nsteps-1:
         #sumarho=np.sum(ppp)/((n_grid+1)*(n_grid+1))
         x_1 = np.linspace(-solenoid_radius,solenoid_radius,n_grid+1)

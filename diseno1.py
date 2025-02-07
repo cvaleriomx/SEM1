@@ -6,78 +6,58 @@ import matplotlib.pyplot as plt
 import numpy as np
 #from libreria import multiplot, multiplot2, calc_rms, multiplot_magnetized, calc_emit_rms
 from libreria import *
-
-
 import scipy.optimize as optimize
 import gc
-
-
-
-
-plot_or_not=False
-
-
 import os, sys, string, pdb
+
+np.random.seed(None)
+
+##DIBUJAR
+plot_or_not=False
 print ( sys.argv[1:])
 por=sys.argv[1:][0]
 print(por)
 por=float(por)
 por2=sys.argv[1:][1]
-
 mag_solenoid=1*float(por)
 mag_solenoid2=1*float(por2)
+var1=por
 str1 = ""
 print(por*10)
-   
 ##ESTE del es para borrar el valor de entrada porque si se queda WARP NO CORRE 
 del sys.argv[1:]
+##AQUI DEFINIMOS WARP
 import warp as wp
-params=por
 #print(f"El argumento proporcionado es: {args.numero} y su tipo es {type(args.numero)}")
 zonas = 6
-
-
 h = 6.626e-34  # Constante de Planck en J·s
 m_e = 9.109e-31  # Masa del electrón en kg
 eV_to_J = 1.602e-19  # Conversión de eV a J
 #Definition and derivation of kinematics
 moc2=0.911e9
 clight=299792458
+# prevent gist from starting upon setup
 
-if True :
+wp.top.lprntpara = False
+wp.top.lpsplots = False
     
-
+if True :
     # Energía cinética del electrón en J
     E_k_eV = 30e3  # Energía en keV
- 
-
-
-
-
-        # Set up solenoid lattice
+    # Set up solenoid lattice
+    # Define some initial BEAM  variables
     run_length = 0.08  # the lenght of the simulation 
     drift_length = 0.025 #space betweeen two sols
     solenoid_length = 0.025 # the lenght of the solenoid 
     solenoid_objetive_length = 0.0125 # the lenght of the solenoid 
-
     solenoid_radius = 2.0e-2 # solenoid radius 
-    NParticles = 15000000
+    NParticles = 1550000
     n_grid = 150
-    var1=params
     
-
     print("TODO ESTAS AQUI XXXXXXX ",mag_solenoid)
-
-
-
-
-    # prevent gist from starting upon setup
-    wp.top.lprntpara = False
-    wp.top.lpsplots = False
-    # Define some initial BEAM  variables
     e_kin = 30.0 * wp.keV    # kinetic energy [eV]
     emit = 40.00e-6        # rms edge emittance [m-rad]
-    i_beam = 0.00005 * wp.mA     # beam current per species [A]
+    i_beam = 0.0005 * wp.mA     # beam current per species [A]
     r_x = 0.10* wp.mm       # beam edge in x [m]
     r_y = 0.10*wp.mm       # beam edge in y [m]
     r_xp = 70.0e-3        # initial beam divergence [rad]
@@ -85,19 +65,11 @@ if True :
     #wp.top.vbeam=e_kin
     #wp.top.ibeam=i_beam
     mu, sigma = 0, r_x # mean and standard deviation
-
-
-
-
-
     gammar=1+(e_kin)/moc2            # Relativistic gamma
     betar=np.sqrt(1-1.0/(gammar**2))   # Relativistic beta
     bg=betar*gammar
     velocity=betar*clight
     I0=moc2/(30) # corriente caracteristica
-    
-    
-   
    
     # Energía total (E_total = E_k + E_rest)
     E_total = e_kin + moc2
@@ -107,8 +79,6 @@ if True :
     wavelength = h / p_ele
 
     print("longitud onda ",wavelength)
-
-
     #Parametro de budjer los define esto vb=I/(I0*betar)
     factor_perveance=1/(bg*bg*gammar*moc2)
     #The solenoid strenght is defined here 
@@ -118,17 +88,11 @@ if True :
     f_pr=(9.1e-31)*3e8/1.6e-19
     Brho=bg*f_pr
     ksol=(0.5*mag_solenoid/Brho)*(0.5*mag_solenoid/Brho)
-    cgmplotfreq = 1000
     e_rms=0
-    
     # Define ion species
     #protons = wp.Species(type=wp.Proton, charge_state = +1, name = "Protons")
     electrons = wp.Species(type=wp.Electron,charge_state = -1, name = "Electrons")
     
-   
-    #wp.derivqty()
-    
-    ## ASSIGNMENT for LEBT Task 1: Uncomment H2+ above and add it to the list below
     #beam_species = [electrons,hy2plus]
     beam_species = [electrons]
     for beam in beam_species:
@@ -160,34 +124,24 @@ if True :
     #DEFINE DISTRIBUTION OF PARTICLES 
     XX=np.random.normal(mu, sigma, NParticles)
     YY=np.random.normal(mu, sigma, NParticles)
-    radios = np.sqrt(XX**2 + YY**2)
-   
-    ZZ=np.zeros(NParticles)
-    VX=np.zeros(NParticles)
-    VY=np.zeros(NParticles)
-    VX=np.random.normal(mu, 10000, NParticles)
-    VY=np.random.normal(mu, 10000, NParticles)
-
-
+    #radios = np.sqrt(XX**2 + YY**2)
+    #ZZ=np.zeros(NParticles)
+    #VX=np.zeros(NParticles)
+    #VY=np.zeros(NParticles)
+    #VX=np.random.normal(mu, 10000, NParticles)
+    #VY=np.random.normal(mu, 10000, NParticles)
     #VZ=velocity
     sigmavz = 0.01 # mean and standard deviation
-    VZ = np.random.normal(velocity, sigmavz, NParticles)
-    print(VZ)
+    #VZ = np.random.normal(velocity, sigmavz, NParticles)
+    #print(VZ)
 
     print(np.std(XX),np.std(YY))
-    #if (plot_or_not):
     
-    
-    #wp.top.npmax = NParticles
-    #wp.addparticles(x=XX,y=YY,z=ZZ,vx=VX,vy=VY,vz=VZ,js=0,lallindomain=True)
-    #electrons.addparticles(x=XX,y=YY,z=ZZ,vx=VX,vy=VY,vz=VZ,lallindomain=True)#,w=3000)
-    #electrons.ekin= e_kin
-# SOLENOID DEFINITION
+    # SOLENOID DEFINITION
     fsol=1/(ksol*solenoid_length)
     #print("focal point lenght = ",fsol)
     ##GTY=input()
-    x1=electrons.getx()
-    #print("JJJ",x1)
+    
     solenoid_zi = [drift_length + i * solenoid_length + i * drift_length for i in range(3)]
     solenoid_ze = [drift_length + (i + 1) * solenoid_length + i * drift_length for i in range(3)]
     print("LLLLLLLLLLLLLLLLLLLLinicio final",solenoid_zi,solenoid_ze)
@@ -218,31 +172,26 @@ if True :
                 ri=solenoid_radius*0.5,
                 maxbz=1*mag_solenoid2)  # 0.075 T for p+, 0.125 T for H2+ [0.03345496 0.06552982]
 
+
 #0.0575 0.06039
     
     # Pipe in the solenoid transport
     solenoid_zi[1]=0.075
     pipe = wp.ZCylinderOut(radius=solenoid_radius*1.0, zlower=0.0, zupper=solenoid_ze[0])
-    pipe1 = wp.ZCylinderOut(radius=0.0002, zlower=solenoid_zi[1], zupper=solenoid_zi[1]+0.004)
+    pipe1 = wp.ZCylinderOut(radius=0.00005, zlower=solenoid_zi[1], zupper=solenoid_zi[1]+0.004)
     pipe2 = wp.ZCylinderOut(radius=0.003, zlower=solenoid_zi[2], zupper=solenoid_zi[2]+0.004)
     pipe3 = wp.ZCylinderOut(radius=0.004, zlower=solenoid_ze[2], zupper=solenoid_ze[2]+0.004)
     print("FFFFFFFFFFFFFFFFFFFFFFFFF",solenoid_ze[1])
     pipe=pipe1
     #pipe=pipe1+pipe2+pipe3
-
-
     scraper = wp.ParticleScraper(pipe)
-
-
     conductors=pipe
-
-
     # set up particle termination at cylindrical wall
     wp.top.prwall = solenoid_radius
 
 
   
-    var1=float(params)  # number of grid cells in x and y direction
+   # var1=float(params)  # number of grid cells in x and y direction
     wp.w3d.nx = n_grid
     wp.w3d.ny = n_grid
 
@@ -263,10 +212,6 @@ if True :
     wp.w3d.vtrandom = "digitrev"    # load vx, vy with digitreverse random numbers
     wp.w3d.vzrandom = "digitrev"    # load vz     with digitreverse random numbers
     wp.w3d.cylinder = True          # load a cylinder
-
-
-
-
     #x1=electrons.getx()
     #print("JJJ2 ",x1)
     wp.top.lrelativ   =  False    # turn off relativistic kinematics
@@ -274,7 +219,6 @@ if True :
     wp.wxy.ds = 0.1250e-3            # ds for part adv [m]
     wp.wxy.lvzchang = True        # Use iterative stepping, which is needed if the vz changes
     wp.top.ibpush   = 2           # magnetic field particle push: 0 - off, 1 - fast, 2 - accurate 
-
 
     # Setup field solver using 2d multigrid field solver.
     wp.w3d.boundxy = 0              # Neuman boundary conditions on edge of grid.
@@ -297,10 +241,13 @@ if True :
         electrons.gety()[varu]=YY[varu]
         #electrons.getvx()[varu]=VX[varu]
         #electrons.getvy()[varu]=VY[varu]
+    #print (XX)
+    #input()
+    XX=[]
+    YY=[]
 
     #wp.derivqty()
     #electrons.addparticles(x=XX,y=YY,z=ZZ,vx=VX,vy=VY,vz=VZ,lallindomain=True)#,w=3000)
-
 
     # Install conducting aperture on mesh
     wp.installconductors(conductors, dfill=wp.largepos)
@@ -314,30 +261,11 @@ if True :
 
 
     #VARIABLES A GUARDAR 
-    z_posi2 = []
-    x_rms2  = []
+    z_posi2, x_rms2, xiy, z_posi, x_rms, x_emit, rhoprome, Npart_time, chi, p1x, p1xp, p1y, p1vx, p1vy, phasead, p1b, trans = ([] for _ in range(17))
     zpos = 0.0
-    xiy=[]
-    z_posi = []
-    x_rms  = []
-    x_emit = []
-    rhoprome= []
-    Npart_time=[]
-    chi=[]
-    p1x=[]
-    p1xp=[]
-    p1y=[]
-    p1vx=[]
-    p1vy=[]
-    phasead=[]
-    p1b=[]
-    trans=[]
     ## REMOVER PARTICULA NECESARIA PARA QUE WARP GENERA EL HAZ     
     #electrons.gaminv[NParticles] = 0.
     #electrons.gaminv[0] = 0.
-
-
-    
     #DEFINIR PARTIULA DE PRUEBA
     #wp.getx()[10]=0.005
     #wp.gety()[10]=0.00
@@ -349,8 +277,8 @@ if True :
     for i in range(nsteps):
      
      wp.step()
-     if i==620:
-             sort_circular(beam_species)
+     #if i==620:
+     #        sort_circular(beam_species)
 
      
      print("Paso= ",i," ",int(100*(i/nsteps)),"%"," N ",len(electrons.getx()))
@@ -373,17 +301,12 @@ if True :
         tamanox=np.std(x_aux)
         e_rms=calc_emit_rms(x_aux, xp_aux)
         x_rms.append(tamanox)
-
-
         p1x.append(electrons.getx()[10])
         p1y.append(electrons.gety()[10])
         p1vx.append(electrons.getvx()[10])
         p1vy.append(electrons.getvy()[10])
-        
         p1xp.append(xp_aux[10])
         p1b.append(electrons.getbz()[10])
-
-
         z_posi.append(i*wp.wxy.ds*1e3)
         x_emit.append(1e6*e_rms)
         rhoprome.append(sumarho)
@@ -397,8 +320,8 @@ if True :
         #print(Npart_time)
         lineaf2="../salida/profiles_%.4f_.png" % (i)
         if i % 5==0 and i>1000:
-            #multiplot2(beam_species,lineaf2)
-            multiplot2_zones(beam_species,lineaf2,4,NParticles)
+            multiplot2(beam_species,lineaf2)
+            #multiplot2_zones(beam_species,lineaf2,4,NParticles)
      if i==nsteps-1:
         #sumarho=np.sum(ppp)/((n_grid+1)*(n_grid+1))
         x_1 = np.linspace(-solenoid_radius,solenoid_radius,n_grid+1)
@@ -408,12 +331,6 @@ if True :
         #rmed =np.sum(ppp*r4)/np.sum(ppp)
         print(np.sum(r4), np.mean(electrons.getr()))
         
-        #print(sumarho)
-        #print( "RRRRRRRRRRRRRRRRRRRRRRR", rmed)
-        #print(beam_species)
-        #print(wp.top.ns,nsteps,i)
-        #print(wp.getpid())
-        #wp.window(0)
         x_rms2.append(np.std(electrons.getx()))
         z_posi2.append(i*wp.wxy.ds*1e3)
         sizex=(np.std(electrons.getx()))
@@ -422,6 +339,9 @@ if True :
         #print("campo y tamano",mag_solenoid," ",sizex,len(electrons.getx()),z_po,(np.mean(electrons.getz())))
         #print("Beam species ",beam_species)
         print("salida",sizex,e_rms)
+
+
+
     
     if(plot_or_not):    
        
