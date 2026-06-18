@@ -96,8 +96,8 @@ def multiplot2(beam_species,lineaf2):
 
     
     plt.sca(ax12)
-    plt.xlim(-5, 5)
-    plt.ylim(-5, 5)
+    plt.xlim(-10, 10)
+    plt.ylim(-10, 10)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
@@ -128,8 +128,8 @@ def multiplot2(beam_species,lineaf2):
     plt.savefig(lineaf2)
     plt.clf()
 
-def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
-    Npa=0
+def multiplot2_zones(beam_species,lineaf2,zonas):
+
     if not isinstance(beam_species, list):
         beam_species = [beam_species]
    # Dividir las partículas en zonas según su índice
@@ -156,7 +156,7 @@ def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
                 y1[indices],
                 color=colores[i],
                 label=f'Zona {i + 1}',
-                s=1,alpha=0.9
+                s=1,alpha=0.6
             )
 
         #ax13.scatter(1e3*species.getx(), 1e3*species.getxp(),
@@ -164,8 +164,8 @@ def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
 
     
     plt.sca(ax12)
-    plt.xlim(-1, 1)
-    plt.ylim(-1, 1)
+    #plt.xlim(-50, 50)
+    #plt.ylim(-50, 50)
     plt.legend
     plt.xlabel("x (mm)")
     plt.ylabel("y (mm)")
@@ -173,8 +173,8 @@ def multiplot2_zones(beam_species,lineaf2,zonas,Npa):
     
     plt.sca(ax13)
     #ax13=fig2.add_subplot(111,title="Y vs Y\'", rasterized=True)
-    #limits=[[-50, 50], [-70, 70]]
-    Hx, xxedges, yxedges = np.histogram2d(1e3*species.getx(),1e3*species.getxp(),bins=100)
+    limits=[[-50, 50], [-70, 70]]
+    Hx, xxedges, yxedges = np.histogram2d(1e3*species.getx(),1e3*species.getxp(),bins=100,range=limits)
     Hx = np.rot90(Hx)
     Hx = np.flipud(Hx)
     Hmaskedx = np.ma.masked_where(Hx==0,Hx)
@@ -270,62 +270,86 @@ def generar_circular(arreglo):
             muestrasr.append((x, y))
             i=i+1
     return np.array(muestrasr)
+    import numpy as np
+from scipy.interpolate import RegularGridInterpolator
 
-def sort_circular(beam_species):
+def cargar_campo_poisson_3d_para_warp(nombre_archivo,
+                                      Nx=101, Ny=101, Nz=201,
+                                      skiprows=2):
+    data = np.loadtxt(nombre_archivo, skiprows=skiprows)
+  # Archivo: R(cm), Z(cm), Br(G), Bz(G), ...
+    r  = data[:, 0]*0.01
+    z  = data[:, 1]*0.01
+    br = data[:, 2]*1
+    bz = data[:, 3]*1
 
-    if not isinstance(beam_species, list):
-        beam_species = [beam_species]
-    
-    for species in beam_species:
-        XX=species.getx()
-        YY=species.gety()
-        radios = np.sqrt(XX**2 + YY**2)
-        # Ordenar x, y y radios usando los índices
-        indices_ordenados = np.argsort(radios)
-        x_ordenado = XX[indices_ordenados]
-        y_ordenado = YY[indices_ordenados]
-        vaux=species.getvx()
-        vx_ordenado=vaux[indices_ordenados]
-        vaux=species.getvy()
-        vy_ordenado=vaux[indices_ordenados]
-        vaux=species.getvz()
-        vz_ordenado=vaux[indices_ordenados]
-        
-        radios_ordenados = radios[indices_ordenados]
-        for var1 in range(len(XX)):
-            species.getx()[var1]=x_ordenado[var1]
-            species.gety()[var1]=y_ordenado[var1]
-            species.getvx()[var1]=vx_ordenado[var1]
-            species.getvy()[var1]=vy_ordenado[var1]
-            species.getvz()[var1]=vz_ordenado[var1]
+    # ordenar por Z y luego R
+    order = np.lexsort((r, z))
+    r, z, br, bz = r[order], z[order], br[order], bz[order]
 
-def guardar_beam(beam_species,lineaf2):
+    r_unique = np.unique(r)
+    z_unique = np.unique(z)
 
-    if not isinstance(beam_species, list):
-        beam_species = [beam_species]
-    for species in beam_species:
-        XX=species.getx()
-        YY=species.gety()
-        ZZ=species.getz()
+    nr = len(r_unique)
+    nz = len(z_unique)
 
-        radios = np.sqrt(XX**2 + YY**2)
-        # Ordenar x, y y radios usando los índices
-        vx=species.getvx()
-        vy=species.getvy()
-        vz=species.getvz()
+    if len(r) != nr*nz:
+        raise ValueError("El archivo no forma una malla rectangular R-Z.")
 
-        with open(lineaf2, 'a') as file:
-            for a1,a2,a3,a4,a5,a6 in zip(XX, YY, ZZ, vx,vy,vz):
-                file.write(f"{a1}\t{a2}\t{a3}\t{a4}\t{a5}\t{a6}\n")
+    # Mallas 2D originales: shape = (nz, nr)
+    BR = br.reshape((nz, nr))
+    BZ = bz.reshape((nz, nr))
 
+    # Usamos la misma malla radial para x,y
+    x = np.r_[-r_unique[:0:-1], r_unique]
+    y = np.r_[-r_unique[:0:-1], r_unique]
 
-def reset_electron_positions(electrons, X0, Y0, vx0, vy0, vz0):
-    for i in range(len(electrons.getx())):
-        electrons.getx()[i] = X0[i]
-        electrons.gety()[i] = Y0[i]
-        electrons.getvx()[i] = vx0[i]
-        electrons.getvy()[i] = vy0[i]
-        electrons.getvz()[i] = vz0[i]
+    Nx = len(x)
+    Ny = len(y)
+    Nz = nz
 
-            
+    X, Y = np.meshgrid(x, y, indexing="ij")
+    R = np.sqrt(X**2 + Y**2)
 
+    # convertir R cartesiano al índice radial más cercano
+    dr = r_unique[1] - r_unique[0]
+    ir = np.rint(R/dr).astype(int)
+
+    # fuera del radio máximo del mapa
+    outside = ir >= nr
+    ir[outside] = nr - 1
+
+    bx = np.zeros((Nx, Ny, Nz), dtype=np.float64)
+    by = np.zeros((Nx, Ny, Nz), dtype=np.float64)
+    bz3d = np.zeros((Nx, Ny, Nz), dtype=np.float64)
+
+    for iz in range(Nz):
+        Br_xy = BR[iz, ir]
+        Bz_xy = BZ[iz, ir]
+
+        Br_xy[outside] = 0.0
+        Bz_xy[outside] = 0.0
+
+        mask = R > 0.0
+
+        bx[:, :, iz][mask] = Br_xy[mask]*X[mask]/R[mask]
+        by[:, :, iz][mask] = Br_xy[mask]*Y[mask]/R[mask]
+        bz3d[:, :, iz] = Bz_xy
+
+    dx = x[1] - x[0]
+    dy = y[1] - y[0]
+    dz = z_unique[1] - z_unique[0]
+
+    params = dict(
+        z_start=z_unique[0],
+        z_stop=z_unique[-1],
+        xs=x[0],
+        dx=dx,
+        ys=y[0],
+        dy=dy,
+        nx=Nx,
+        ny=Ny,
+        nz=Nz
+    )
+
+    return bx, by, bz3d, params
