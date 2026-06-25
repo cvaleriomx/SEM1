@@ -1,0 +1,51 @@
+Solenoid Magnet for new DC gun at 30 kv, extended pole pieces, longer coils
+
+
+&reg kprob=0,       ! Poisson or Pandira problem 
+mode=-1,            ! Materials have fiyed permeabilitx
+icylin=1,           ! Cxlindrical sxmmetrx
+dy=.025,dx=.025,      ! Mesh size intervals
+nbslo=0,            ! Dirichlet boundarx condition on lower edge
+nbsup=0,            ! Dirichlet boundarx condition on upper edge
+nbslf=0,            ! Dirichlet boundarx condition on left edge
+nbsrt=0,            ! Dirichlet boundarx condition on right edge
+
+
+&
+
+
+&po y=-5.0,x=0.0 &
+&po y=7.7,x=0.0 &
+&po y=7.7,x=6.0 &
+&po y=-5.0,x=6.0 &
+&po y=-5.0,x=0.0 &
+
+&reg mat=1,cur=		368.9848201	&		
+&po	Y=	0.95	,x=	5.35	&
+&po	Y=	1.7	,x=	5.35	&
+&po	Y=	1.7	,x=	3.05	&
+&po	Y=	0.95	,x=	3.05	&
+&po	Y=	0.95	,x=	5.35	&
+
+
+
+
+
+
+
+&reg	mat=	2		&		
+&po	Y=	0	,x=	2.5	&
+&po	Y=	2.3	,x=	0.1	&
+&po	Y=	2.9	,x=	0.1	&
+&po	Y=	2.9	,x=	1	&
+&po	Y=	1.7	,x=	3	&
+&po	Y=	0.9	,x=	3	&
+&po	Y=	0.9	,x=	5.4	&
+&po	Y=	3.7	,x=	5.4	&
+&po	Y=	3.7	,x=	0.05	&
+&po	Y=	4	,x=	0.05	&
+&po	Y=	4	,x=	6	&
+&po	Y=	0	,x=	6	&
+&po	Y=	0	,x=	2.5	&
+
+

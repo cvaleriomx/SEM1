@@ -1,0 +1,52 @@
+Solenoid Magnet for new DC gun at 10MV/m, extended pole pieces, longer coils
+
+
+&reg kprob=0,       ! Poisson or Pandira problem 
+mode=-1,            ! Materials have fiyed permeabilitx
+icylin=1,           ! Cxlindrical sxmmetrx
+dy=.08,dx=.08,      ! Mesh size intervals
+nbslo=0,            ! Dirichlet boundarx condition on lower edge
+nbsup=0,            ! Dirichlet boundarx condition on upper edge
+nbslf=0,            ! Dirichlet boundarx condition on left edge
+nbsrt=0,            ! Dirichlet boundarx condition on right edge
+
+
+&
+
+
+&po y=0.0,x=0.0 &
+&po y=17.0,x=0.0 &
+&po y=17.0,x=20.0 &
+&po y=0.0,x=20.0 &
+&po y=0.0,x=13.0 &
+&po y=0.0,x=3.2 &
+&po y=0.0,x=0.0 &
+
+&reg mat=1,cur=1000. &
+&po	y=	5.485	,x=	3.275	&
+&po	y=	5.485	,x=	7.165	&
+&po	y=	10.515	,x=	7.165	&
+&po	y=	10.515	,x=	3.275	&
+&po	y=	5.485	,x=	3.275	&
+
+
+
+
+&reg	mat=	2		&		
+&po	Y=	7.8	,	x=	2.54	&
+&po	Y=	4.75	,	x=	2.54	&
+&po	Y=	4.75	,	x=	8	&
+&po	Y=	11.25	,	x=	8	&
+&po	Y=	11.25	,	x=	2.54	&
+&po	Y=	8.2	,	x=	2.54	&
+&po	Y=	8.2	,	x=	3.175	&
+&po	Y=	10.615	,	x=	3.175	&
+&po	Y=	10.615	,	x=	7.365	&
+&po	Y=	5.385	,	x=	7.365	&
+&po	Y=	5.385	,	x=	3.175	&
+&po	Y=	7.8	,	x=	3.175	&
+&po	Y=	7.8	,	x=	2.54	&				
+
+
+
+
